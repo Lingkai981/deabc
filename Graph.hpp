@@ -1,9 +1,4 @@
-//
-//  Graph.hpp
-//  bc_ABACUS
-//
-//  Created by LingkaiMeng on 2024/5/18.
-//
+
 
 #ifndef Graph_hpp
 #define Graph_hpp
