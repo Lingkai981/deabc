@@ -1,9 +1,4 @@
-//
-//  Graph.cpp
-//  bc_ABACUS
-//
-//  Created by LingkaiMeng on 2024/5/18.
-//
+
 
 #include "Graph.hpp"
 
