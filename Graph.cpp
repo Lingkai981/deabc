@@ -491,94 +491,6 @@ uint64_t Graph::Reservoir_sampling(uint32_t BUCKET_BITS) {
     return (uint64_t)butterfly_num;
 }
 
-// uint64_t Graph::Reservoir_sampling(uint32_t BUCKET_BITS) {
-//     uint64_t butterfly_num = 0;
-//     this->Reservoir_size = pow(2, BUCKET_BITS);
-//     double currentEdges = 0;
-//     uint32_t increment = 0;
-//     double y = 0;
-//     double Pr = 0;
-//    uint64_t sum_degree_l = 0, sum_degree_r = 0;
-
-//    srand(static_cast<unsigned int>(time(0)));
-//    std::random_device rd;
-//    std::mt19937 gen(rd());
-
-//    RS_sample_edge_l.reserve(Reservoir_size);
-//    RS_sample_edge_r.reserve(Reservoir_size);
-
-//    std::uniform_real_distribution<> dis(0.0, 1.0);
-
-//    for (uint32_t i = 0; i < m; i++) {
-//        if (i % 10000 == 0) cout << i << endl;
-//        currentEdges++;
-
-//        if(currentEdges < Reservoir_size) y = currentEdges;
-//        else y = (double)Reservoir_size;
-//        Pr = (y/currentEdges) * ((y-1)/(currentEdges-1)) * ((y-2)/(currentEdges-2));
-//        increment = round(1/Pr);
-
-//        bool use_left_side = (sum_degree_l < sum_degree_r);
-//        auto& RS_adj_v = use_left_side ? RS_adj_r : RS_adj_l;
-//        auto& RS_adj_u = use_left_side ? RS_adj_l : RS_adj_r;
-//        uint32_t v = use_left_side ? edge_r[i] : edge_l[i];
-//        uint32_t u = use_left_side ? edge_l[i] : edge_r[i];
-
-//        for (uint32_t w : RS_adj_u[u]) {
-//            if (w == v) continue;
-//            for (uint32_t w2 : RS_adj_v[w]) {
-//                if (w2 == u) continue;
-//                if (std::find(RS_adj_v[v].begin(), RS_adj_v[v].end(), w2) != RS_adj_v[v].end()) {
-//                    butterfly_num += increment;
-//                }
-//            }
-//        }
-       
-// //        for (uint32_t w : RS_adj_u[u]) {
-// //                if (w == v) continue;  // 跳过与自己相连的边
-// //                for (uint32_t w2 : RS_adj_v[w]) {
-// //                    if (w2 == u || w2 <= v) continue;  // 避免重复计数
-// //                    if (std::find(RS_adj_v[v].begin(), RS_adj_v[v].end(), w2) != RS_adj_v[v].end()) {
-// //                        butterfly_num += increment;
-// //                    }
-// //                }
-// //            }
-
-//        if (currentEdges <= Reservoir_size) {
-//            RS_sample_edge_l.push_back(edge_l[i]);
-//            RS_sample_edge_r.push_back(edge_r[i]);
-//            RS_adj_l[edge_l[i]].push_back(edge_r[i]);
-//            sum_degree_l = sum_degree_l + RS_adj_l[edge_l[i]].size()*RS_adj_l[edge_l[i]].size() - (RS_adj_l[edge_l[i]].size() - 1)*(RS_adj_l[edge_l[i]].size() - 1);
-//            RS_adj_r[edge_r[i]].push_back(edge_l[i]);
-//            sum_degree_r = sum_degree_r + RS_adj_r[edge_r[i]].size()*RS_adj_r[edge_r[i]].size() - (RS_adj_r[edge_r[i]].size() - 1)*(RS_adj_r[edge_r[i]].size() - 1);
-//        } else if (dis(gen) < (double)Reservoir_size/currentEdges) {
-//            int del_pos = rand() % Reservoir_size;
-//            uint32_t del_l = RS_sample_edge_l[del_pos];
-//            uint32_t del_r = RS_sample_edge_r[del_pos];
-//            RS_sample_edge_l[del_pos] = edge_l[i];
-//            RS_sample_edge_r[del_pos] = edge_r[i];
-
-//            auto& del_adj_l = RS_adj_l[del_l];
-//            auto& del_adj_r = RS_adj_r[del_r];
-
-//            std::swap(del_adj_l.back(), *std::find(del_adj_l.begin(), del_adj_l.end(), del_r));
-//            del_adj_l.pop_back();
-//            sum_degree_l = sum_degree_l + RS_adj_l[del_l].size()*RS_adj_l[del_l].size() - (RS_adj_l[del_l].size() + 1)*(RS_adj_l[del_l].size() + 1);
-
-//            std::swap(del_adj_r.back(), *std::find(del_adj_r.begin(), del_adj_r.end(), del_l));
-//            del_adj_r.pop_back();
-//            sum_degree_r = sum_degree_r + RS_adj_r[del_r].size()*RS_adj_r[del_r].size() - (RS_adj_r[del_r].size() + 1)*(RS_adj_r[del_r].size() + 1);
-
-//            RS_adj_l[edge_l[i]].push_back(edge_r[i]);
-//            sum_degree_l = sum_degree_l + RS_adj_l[edge_l[i]].size()*RS_adj_l[edge_l[i]].size() - (RS_adj_l[edge_l[i]].size() - 1)*(RS_adj_l[edge_l[i]].size() - 1);
-//            RS_adj_r[edge_r[i]].push_back(edge_l[i]);
-//            sum_degree_r = sum_degree_r + RS_adj_r[edge_r[i]].size()*RS_adj_r[edge_r[i]].size() - (RS_adj_r[edge_r[i]].size() - 1)*(RS_adj_r[edge_r[i]].size() - 1);
-//        }
-//    }
-
-//    return butterfly_num;
-// }
-
 int Graph::intersectionSize(const vector<uint32_t>& vec1, const vector<uint32_t>& vec2) {
     unordered_set<uint32_t> set1(vec1.begin(), vec1.end());
     int count = 0;
@@ -613,17 +525,10 @@ uint64_t Graph::Priority_sampling(uint32_t BUCKET_BITS, int is_hash){
     
     uint32_t time_ = m/Time_point;
     
-    /**
-    生成随机数
-     */
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     
-    
-    /**
-    hash相关
-     */
     random_seed = time(NULL);
     mt19937_64 generator_DEABC(random_seed);
     uniform_int_distribution<unsigned long long> dist2(Prime2/3,Prime2);
@@ -736,136 +641,6 @@ uint64_t Graph::Priority_sampling(uint32_t BUCKET_BITS, int is_hash){
     return butterfly_num;
 }
 
-// uint64_t Graph::Priority_sampling_DEABC0(uint32_t BUCKET_BITS){
-//     this->Reservoir_size = pow(2,BUCKET_BITS);
-//     double butterfly_num = 0;
-//     uint32_t currentEdges = 0;
-//     random_seed = time(NULL);
-    
-//     uint64_t sum_degree_l = 0, sum_degree_r = 0;
-    
-//     mt19937_64 generator_DEABC(random_seed);
-//     mt19937 gen(random_seed);
-//     uniform_int_distribution<unsigned long long> dist2(Prime2/3,Prime2);
-    
-//     priority_queue<PS_edge, std::vector<PS_edge>, ComparePriority_min> buffer;
-    
-//     unsigned long long c = dist2(generator_DEABC);
-//     unsigned long long d = dist2(generator_DEABC);
-    
-// //    vector<vector<uint32_t> > DEABC_adj_v, DEABC_adj_u;
-//     uint32_t u, v;
-//     double *count_u, *count_v;
-    
-//     exactcnt = 1;
-    
-//     for(uint32_t  i = 0; i< m; i++){
-//         currentEdges++;
-        
-//         //if(i%100000 == 0) cout<<i<<endl;
-        
-//         double edge_rank = hash(edge_l[i],edge_r[i],c,d, gen);
-// //        double edge_rank = EdgeHash_p(edge_l[i],edge_r[i],c,d);
-        
-//         bool sampled = 0;
-        
-//         if(find(DEABC_adj_l[edge_l[i]].begin(),DEABC_adj_l[edge_l[i]].end(),edge_r[i]) == DEABC_adj_l[edge_l[i]].end()){
-//             if(currentEdges < Reservoir_size){
-//                 buffer.push(PS_edge(edge_l[i],edge_r[i],edge_rank));
-                
-//                 DEABC_adj_l[edge_l[i]].push_back(edge_r[i]);
-//                 sum_degree_l = sum_degree_l + DEABC_adj_l[edge_l[i]].size()*DEABC_adj_l[edge_l[i]].size() - (DEABC_adj_l[edge_l[i]].size() - 1)*(DEABC_adj_l[edge_l[i]].size() - 1);
-//                 DEABC_adj_r[edge_r[i]].push_back(edge_l[i]);
-//                 sum_degree_r = sum_degree_r + DEABC_adj_r[edge_r[i]].size()*DEABC_adj_r[edge_r[i]].size() - (DEABC_adj_r[edge_r[i]].size() - 1)*(DEABC_adj_r[edge_r[i]].size() - 1);
-//                 sampled = 1;
-                
-//             }else{
-//                 if(exactcnt){
-//                     exactcnt = 0;
-//                 }
-//                 PS_edge max_p_edge = buffer.top();
-//                 if(edge_rank < max_p_edge.priority){
-                    
-//                     auto& del_adj_l = DEABC_adj_l[max_p_edge.edge_l];
-//                     auto& del_adj_r = DEABC_adj_r[max_p_edge.edge_r];
-//                     std::swap(del_adj_l.back(), *std::find(del_adj_l.begin(), del_adj_l.end(), max_p_edge.edge_r));
-//                     del_adj_l.pop_back();
-//                     sum_degree_l = sum_degree_l + DEABC_adj_l[max_p_edge.edge_l].size()*DEABC_adj_l[max_p_edge.edge_l].size() - (DEABC_adj_l[max_p_edge.edge_l].size() + 1)*(DEABC_adj_l[max_p_edge.edge_l].size() + 1);
-                    
-//                     std::swap(del_adj_r.back(), *std::find(del_adj_r.begin(), del_adj_r.end(), max_p_edge.edge_l));
-//                     del_adj_r.pop_back();
-//                     sum_degree_r = sum_degree_r + DEABC_adj_r[max_p_edge.edge_r].size()*DEABC_adj_r[max_p_edge.edge_r].size() - (DEABC_adj_r[max_p_edge.edge_r].size() - 1)*(DEABC_adj_r[max_p_edge.edge_r].size() - 1);
-                    
-//                     buffer.pop();
-                    
-//                     buffer.push(PS_edge(edge_l[i],edge_r[i],edge_rank));
-                    
-//                     DEABC_adj_l[edge_l[i]].push_back(edge_r[i]);
-//                     sum_degree_l = sum_degree_l + DEABC_adj_l[edge_l[i]].size()*DEABC_adj_l[edge_l[i]].size() - (DEABC_adj_l[edge_l[i]].size() - 1)*(DEABC_adj_l[edge_l[i]].size() - 1);
-//                     DEABC_adj_r[edge_r[i]].push_back(edge_l[i]);
-//                     sum_degree_r = sum_degree_r + DEABC_adj_r[edge_r[i]].size()*DEABC_adj_r[edge_r[i]].size() - (DEABC_adj_r[edge_r[i]].size() - 1)*(DEABC_adj_r[edge_r[i]].size() - 1);
-//                     sampled = 1;
-                    
-//                 }
-//             }
-            
-//             if(exactcnt){
-                
-//                 bool use_left_side = (sum_degree_l < sum_degree_r);
-//                 auto& DEABC_adj_v = use_left_side ? DEABC_adj_r : DEABC_adj_l;
-//                 auto& DEABC_adj_u = use_left_side ? DEABC_adj_l : DEABC_adj_r;
-//                 v = use_left_side ? edge_r[i] : edge_l[i];
-//                 u = use_left_side ? edge_l[i] : edge_r[i];
-                
-//                 for(uint32_t w : DEABC_adj_u[u]){
-//                     if(w == v) continue;
-//                     double weightSum_w = 0;
-//                     for(uint32_t w2 : DEABC_adj_v[w]){
-//                         if(w2 == u) continue;
-                        
-//                         if(find(DEABC_adj_v[v].begin(),DEABC_adj_v[v].end(),w2) != DEABC_adj_v[v].end()){
-//                             butterfly_num++;
-//                         }
-                        
-//                     }
-//                 }
-                
-                    
-//             }else{
-//                 double qT = 0;
-//                 if(sampled){
-//                     qT = (((double)Reservoir_size - 4.0) / (double)Reservoir_size) / pow(buffer.top().priority, 4.0);
-                    
-//                     bool use_left_side = (sum_degree_l < sum_degree_r);
-//                     auto& DEABC_adj_v = use_left_side ? DEABC_adj_r : DEABC_adj_l;
-//                     auto& DEABC_adj_u = use_left_side ? DEABC_adj_l : DEABC_adj_r;
-//                     v = use_left_side ? edge_r[i] : edge_l[i];
-//                     u = use_left_side ? edge_l[i] : edge_r[i];
-
-//                     for(uint32_t w : DEABC_adj_u[u]){
-//                         if(w == v) continue;
-//                         double weightSum_w = 0;
-//                         for(uint32_t w2 : DEABC_adj_v[w]){
-//                             if(w2 == u) continue;
-                            
-//                             if(find(DEABC_adj_v[v].begin(),DEABC_adj_v[v].end(),w2) != DEABC_adj_v[v].end()){
-//                                 butterfly_num+=qT;
-//                             }
-                            
-//                         }
-                        
-//                     }
-                    
-//                 }
-//             }
-//         }
-        
-        
-//     }
-    
-//     return (uint64_t)butterfly_num;
-// }
-
 uint64_t Graph::Priority_sampling_DEABC0(uint32_t BUCKET_BITS){
     this->Reservoir_size = pow(2,BUCKET_BITS);
     double butterfly_num = 0;
@@ -886,17 +661,10 @@ uint64_t Graph::Priority_sampling_DEABC0(uint32_t BUCKET_BITS){
     
     uint32_t u, v;
     
-    // memset(hashmap, 0, sizeof(uint32_t) * std::max(l_n, r_n));
     
     for(uint32_t  i = 0; i< m; i++){
         currentEdges++;
 
-        // if (i % time_num == 0) cout << (uint64_t)butterfly_num << endl;
-        
-        // if(i%10000 == 0) cout<<i<<endl;
-        
-        // double edge_rank = hash(edge_l[i],edge_r[i],c,d, gen);
-        // double edge_rank = EdgeHash_p(edge_l[i],edge_r[i],c,d);
         double edge_rank = hash(edge_l[i],edge_r[i],c,d);
         
         
@@ -930,26 +698,13 @@ uint64_t Graph::Priority_sampling_DEABC0(uint32_t BUCKET_BITS){
                         }
                     }
                 }
-                
-                // for(uint32_t w : DEABC_adj_u[u]){
-                //     if(w == v) continue;
-                //     double weightSum_w = 0;
-                //     for(uint32_t w2 : DEABC_adj_v[w]){
-                //         if(w2 == u) continue;
-                        
-                //         if(find(DEABC_adj_v[v].begin(),DEABC_adj_v[v].end(),w2) != DEABC_adj_v[v].end()){
-                //             butterfly_num++;
-                //         }
-                        
-                //     }
-                // }
+
                 
             }
                 
         }else{
             
             PS_edge max_p_edge = buffer.top();
-            // PS_edge max_p_edge = PS_edge(edge_l[i],edge_r[i],1);
             if(edge_rank < max_p_edge.priority){
                 if(find(DEABC_adj_l[edge_l[i]].begin(),DEABC_adj_l[edge_l[i]].end(),edge_r[i]) == DEABC_adj_l[edge_l[i]].end()){
                     
@@ -994,19 +749,7 @@ uint64_t Graph::Priority_sampling_DEABC0(uint32_t BUCKET_BITS){
                         }
                     }
 
-                    // for(uint32_t w : DEABC_adj_u[u]){
-                    //     if(w == v) continue;
-                    //     double weightSum_w = 0;
-                    //     for(uint32_t w2 : DEABC_adj_v[w]){
-                    //         if(w2 == u) continue;
-                            
-                    //         if(find(DEABC_adj_v[v].begin(),DEABC_adj_v[v].end(),w2) != DEABC_adj_v[v].end()){
-                    //             butterfly_num+=qT;
-                    //         }
-                            
-                    //     }
-                        
-                    // }
+
                 }
             }
         }
@@ -1032,10 +775,8 @@ uint32_t Graph::hash_func(uint32_t a)
 }
 
 double Graph::hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 &generator) {
-    // 使用std::hash函数生成哈希值
     size_t hashValue = a ^ (b << 1) * c ^ (d >> 1);
     
-    // 创建一个以哈希值为种子的均匀分布的随机数生成器
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     generator.seed(hashValue);
     return distribution(generator);
@@ -1045,7 +786,6 @@ double Graph::hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 &gene
 int Graph::hash_bucket(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 generator){
     size_t hashValue = a ^ (b << 1) * c ^ (d >> 1);
     
-    // 创建一个以哈希值为种子的均匀分布的随机数生成器
     std::uniform_int_distribution<int> distribution(0, Reservoir_size-1);
     generator.seed(hashValue);
     return distribution(generator);
@@ -1091,16 +831,7 @@ double Graph::GetCounts_DEABC_PLUS(uint32_t v_l, uint32_t v_r, uint64_t &sum_deg
         }
     }
     
-    // for(uint32_t w : DEABC_PLUS_adj_u[u]){
-    //     if(w == v) continue;
-    //     for(uint32_t w2 : DEABC_PLUS_adj_v[w]){
-    //         if(w2 == u) continue;
-            
-    //         if(find(DEABC_PLUS_adj_v[v].begin(),DEABC_PLUS_adj_v[v].end(),w2) != DEABC_PLUS_adj_v[v].end()){
-    //             count_num++;
-    //         }
-    //     }
-    // }
+
     return count_num;
 }
 
@@ -1127,8 +858,6 @@ uint64_t Graph::Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS){
     uint32_t u, v;
     
     double q = 1;
-    // S_DEABC_PLUS.clear();
-    // S_DEABC_PLUS.resize(Reservoir_size, PS_edge(0, 0, -1.0));
     
     uint32_t g_max;
     uint32_t y;
@@ -1138,7 +867,6 @@ uint64_t Graph::Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS){
 
     uint32_t non_empty_bucket_num = 0;
 
-    // memset(hashmap, 0, sizeof(uint32_t) * std::max(l_n, r_n));
 
     auto start = std::chrono::high_resolution_clock::now();
     
@@ -1146,37 +874,13 @@ uint64_t Graph::Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS){
     for(uint32_t  i = 0; i< m; i++){
         currentEdges++;
         g_max=0;
-        // cout<<i<<endl;
 
-        // if(i%100000 == 0){
-            // cout<<i<<endl;
-        //     std::cout<<i<<" "<<(uint64_t)n_heat<<std::endl;
-
-        // } 
-
-
-        // double edge_rank = hash(edge_l[i],edge_r[i], c, d, gen);
-        // uint32_t edge_bucket = hash_bucket(edge_l[i],edge_r[i], c, d, gen);
-
-        // if (i % time_num == 0) cout << (uint64_t)butterfly_num << endl;
 
         double edge_rank = hash(edge_l[i],edge_r[i], c, d);
         uint32_t edge_bucket = hash_bucket(edge_l[i],edge_r[i], c, d, this->Reservoir_size);
         
         double p;
 
-        
-        // if(n_heat <= 0 || non_empty_bucket_num<=2){
-        //     p = 1;
-        // }else{
-        //     p = ((double)non_empty_bucket_num/(double)n_heat)*((double)(non_empty_bucket_num-1)/((double)n_heat-1)) *((double)(non_empty_bucket_num-2)/((double)n_heat-2));
-        // }
-        
-        // if(find(DEABC_PLUS_adj_l[edge_l[i]].begin(),DEABC_PLUS_adj_l[edge_l[i]].end(),edge_r[i]) == DEABC_PLUS_adj_l[edge_l[i]].end()){
-        //     if(n_heat > 0 && dis(gen)*(double)(n_heat - non_empty_bucket_num)/(double)n_heat < ((double)n_heat/(double)currentEdges)){
-        //         butterfly_num += (GetCounts_DEABC_PLUS(edge_l[i], edge_r[i], sum_degree_l, sum_degree_r, i))/p;
-        //     }
-        // }
 
         
         if(S_DEABC_PLUS[edge_bucket].priority == -1 || edge_rank < S_DEABC_PLUS[edge_bucket].priority){
@@ -1186,13 +890,8 @@ uint64_t Graph::Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS){
             }else{
                 p = ((double)non_empty_bucket_num/(double)n_heat)*((double)(non_empty_bucket_num-1)/((double)n_heat-1)) *((double)(non_empty_bucket_num-2)/((double)n_heat-2)) *((double)(non_empty_bucket_num-3)/((double)n_heat-3));
             }
-
-            // cout<<p<<endl;
-        
-            // if(find(DEABC_PLUS_adj_l[edge_l[i]].begin(),DEABC_PLUS_adj_l[edge_l[i]].end(),edge_r[i]) == DEABC_PLUS_adj_l[edge_l[i]].end()){
-                // if(n_heat > 0 && dis(gen)*(double)(n_heat - non_empty_bucket_num)/(double)n_heat < ((double)n_heat/(double)currentEdges)){
                 butterfly_num += (GetCounts_DEABC_PLUS(edge_l[i], edge_r[i], sum_degree_l, sum_degree_r, i))/p;
-            // }
+     
 
 
             
@@ -1258,39 +957,31 @@ uint64_t Graph::Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS){
 double Graph::hash_to_double(uint32_t a, uint32_t b){
     double da = static_cast<double>(a);
     double db = static_cast<double>(b);
-        
-        // 使用 sin 和 cos 函数生成一个近似均匀分布的值
+
     double result = fabs(sin(da) * cos(db));
         
-        // 确保结果在 0 到 1 范围内
     return fmod(result, 1.0);
 
 }
-
-// MurmurHash3 生成64位哈希值
 uint64_t Graph::murmur_hash_64(uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
-    uint64_t hash[2];  // MurmurHash3_x64_128 的输出是128位，使用前64位
+    uint64_t hash[2]; 
     uint32_t data[4] = {a, b, c, d};
 
-    // 调用MurmurHash3_x64_128生成哈希
+    
     MurmurHash3_x64_128(data, sizeof(data), 0, hash);
 
-    return hash[0];  // 只使用前64位哈希值
+    return hash[0]; 
 }
 
-// 将MurmurHash的输出映射到[0, 1)
 double Graph::hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
     uint64_t hash_value = murmur_hash_64(a, b, c, d);
 
-    // 将哈希值映射到[0, 1)
     return static_cast<double>(hash_value) / static_cast<double>(UINT64_MAX);
 }
 
-// 将哈希结果映射到 [1, range] 范围的整数
 uint32_t Graph::hash_bucket(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t range) {
     uint64_t hash_value = murmur_hash_64(a, b, c, d);
 
-    // 将哈希值映射到 [1, range]，通过取模运算并加1
     return (hash_value % range);
 }
 
