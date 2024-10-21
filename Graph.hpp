@@ -1,7 +1,7 @@
-
 #ifndef Graph_hpp
 #define Graph_hpp
 
+#include <cstdint>
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -15,7 +15,11 @@
 #include "time.h"
 #include <ctime>
 #include <algorithm>
-#include "HyperLogLog.cpp"
+#include <cstring>
+#include <chrono>
+#include "MurmurHash3.h"
+#include <sys/resource.h>
+
 
 #include <limits>
 using namespace std;
@@ -27,6 +31,13 @@ struct PS_edge {
     double priority;
     
     PS_edge(uint32_t edge_l, uint32_t edge_r, double priority) : edge_l(edge_l), edge_r(edge_r), priority(priority) {}
+};
+
+struct PS_edge2 {
+    int edge_l;
+    int edge_r;
+    
+    PS_edge2(int edge_l, int edge_r) : edge_l(edge_l), edge_r(edge_r) {}
 };
 
 struct ComparePriority {
@@ -69,9 +80,10 @@ private:
     uint32_t *start_l;
     uint32_t *start_r;
     vector<vector<uint32_t> > RS_adj_l, RS_adj_r;
+    vector<unordered_set<uint32_t> > RS_adj_l2, RS_adj_r2;
     vector<vector<uint32_t> > PS_adj_l, PS_adj_r;
-    vector<vector<uint32_t> > FURL_adj_l, FURL_adj_r;
-    vector<vector<uint32_t> > DEABCPLUS_adj_l, DEABCPLUS_adj_r;
+    vector<vector<uint32_t> > DEABC_adj_l, DEABC_adj_r;
+    vector<vector<uint32_t> > DEABC_PLUS_adj_l, DEABC_PLUS_adj_r;
     double zStar;
     int time_;
     double *count_l, *count_r;
@@ -79,46 +91,50 @@ private:
     int TM;
     double delta; //decaying factor for past estimations (real value in [0,1))
     uint32_t J; //period for estimation update
-    unordered_map<int, double> FURL_count_l, FURL_count_r; //estimations for basic method FURL-0
-    unordered_map<int, double> FURL_estimations_l, FURL_estimations_r; // estimations for main method FURL
+    unordered_map<int, double> DEABC_count_l, DEABC_count_r; //estimations for basic method DEABC-0
+    unordered_map<int, double> DEABC_estimations_l, DEABC_estimations_r; // estimations for main method DEABC
     
-    vector<PS_edge> S_DEABCPLUS;
+    vector<PS_edge> S_DEABC_PLUS;
+    vector<PS_edge2> S_DEABC_PLUS2;
+    uint32_t *hashmap;
+
+    uint32_t Time_point;
+
+    uint32_t Edge_num_point;
+
+    vector<uint64_t> Time_point_butterflies;
+    vector<uint64_t> Edge_num_point_butterflies;
     
 public:
-    Graph(const char *_dir);
+    Graph(const char *_dir, uint32_t BUCKET_BITS);
     ~Graph();
     void readGraph();
     uint64_t Butterfly_counting();
+
+    vector<uint64_t> Butterfly_counting_time_point();
+    vector<uint64_t> Butterfly_counting_edge_num_point();
+
+    void init();
+
     
     uint64_t Reservoir_sampling(uint32_t BUCKET_BITS);
     int intersectionSize(const vector<uint32_t>& vec1, const vector<uint32_t>& vec2);
     
     uint64_t Priority_sampling(uint32_t BUCKET_BITS, int is_hash);
-    double hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 generator);
+    double hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 &generator);
     
-    uint64_t Priority_sampling_DEABC(uint32_t BUCKET_BITS);
+    uint64_t Priority_sampling_DEABC0(uint32_t BUCKET_BITS);
     double EdgeHash_p(uint32_t u, uint32_t v, unsigned long long a1, unsigned long long b1);
     uint32_t hash_func(uint32_t a);
     
-    uint64_t Priority_sampling_FURL(uint32_t BUCKET_BITS, double delta, uint32_t J);
-    void weighted_average(double delta);
-    
-    uint64_t Priority_sampling_DEABCPLUS(uint32_t BUCKET_BITS);
+    uint64_t Priority_sampling_DEABC_PLUS(uint32_t BUCKET_BITS);
     int hash_bucket(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 generator);
-    double UpdateCounts_DEABCPLUS(uint32_t add, uint32_t &num_in_S, uint32_t v_l, uint32_t v_r, uint64_t &sum_degree_l, uint64_t &sum_degree_r);
-    double choose(int n, int k);
-//    int hash_bucket2(uint32_t a, uint32_t b, uint32_t c, uint32_t d, mt19937 generator);
-    
-    uint64_t Priority_sampling_DEABCPLUS_2(uint32_t BUCKET_BITS, uint64_t real_num);
-    double GetCounts_DEABCPLUS(uint32_t v_l, uint32_t v_r, uint64_t &sum_degree_l, uint64_t &sum_degree_r);
+    double GetCounts_DEABC_PLUS(uint32_t v_l, uint32_t v_r, uint64_t &sum_degree_l, uint64_t &sum_degree_r, uint32_t i);
     double getConstant(uint32_t buckets);
-    
-    uint64_t Priority_sampling_DEABCPLUS_3(uint32_t BUCKET_BITS);
     double hash_to_double(uint32_t v_l, uint32_t v_r);
-    
-    uint64_t Reservoir_sampling_de(uint32_t BUCKET_BITS);//out
-
-    uint64_t Random_pairing();
+    double hash(uint32_t a, uint32_t b, uint32_t c, uint32_t d);
+    uint64_t murmur_hash_64(uint32_t a, uint32_t b, uint32_t c, uint32_t d);
+    uint32_t hash_bucket(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t range);
     
 };
 #endif /* Graph_hpp */
