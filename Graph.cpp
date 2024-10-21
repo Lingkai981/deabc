@@ -86,7 +86,7 @@ Graph::~Graph(){
 }
 
 void Graph::readGraph(){
-    ifstream infile;   //输入流
+    ifstream infile;  
     
     infile.open(str, ios::in);
     if (!infile.is_open()){
@@ -461,14 +461,6 @@ uint64_t Graph::Reservoir_sampling(uint32_t BUCKET_BITS) {
             uint32_t del_r = RS_sample_edge_r[del_pos];
             RS_sample_edge_l[del_pos] = edge_l[i];
             RS_sample_edge_r[del_pos] = edge_r[i];
-
-            // uint32_t del_l = rand() % RS_adj_l.size();
-            
-            // while (RS_adj_l[del_l].size() <= 0) {
-            //     del_l = rand() % RS_adj_l.size();
-            // }
-            
-            // uint32_t del_r = RS_adj_l[del_l][rand() % RS_adj_l[del_l].size()];
 
             auto& del_adj_l = RS_adj_l[del_l];
             auto& del_adj_r = RS_adj_r[del_r];
